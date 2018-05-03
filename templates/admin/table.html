@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ tableName }}</title>
+</head>
+<body>
+<table border="1">
+    <caption>{{ tableName }}表</caption>
+    <tr>
+        {% for c in columnName %}
+        <th>{{ c }}</th>
+        {% endfor %}
+        <th>更新</th>
+        <th>删除</th>
+    </tr>
+    {% for row in tableData %}
+    <tr>
+        {% for c in row.values() %}
+        <td>
+            {{ c }}</td>
+        {% endfor %}
+        <td>
+            <a href="/admin/db/update/{{ tableName }}?id={{ row['id'] }}&csrfToken={{ csrfToken }}">更新</a></td>
+        <td>
+            <a href="/admin/db/delete/{{ tableName }}?id={{ row['id'] }}&csrfToken={{ csrfToken }}">删除</a></td>
+    </tr>
+    {% endfor %}
+</table>
+<a href="/admin/db/insert/{{ tableName }}">添加一行数据</a>
+</body>
+</html>

@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="/static/css/bootstrap.min.css">
+    <script src="/static/js/jquery.min.js"></script>
+    <script src="/static/js/bootstrap.min.js"></script>
+    <title>注册</title>
+</head>
+<style>
+
+    #tip {
+    position: absolute;
+    top: 50px;
+    left: 50%;
+    display: none;
+    min-width: 200px;
+    text-align: center;
+    }
+
+    #form {
+    position:absolute;
+    left:50%;
+    top:45%;
+    transform:translate(-50%,-50%);
+    }
+
+    #usr, #pwd, #pwd_ag, #r_c {
+    width: 100%;
+    }
+
+    #usrtips, #pwdtips, #register_code_tips {
+    color: gray;
+    }
+
+    #title {
+    text-align: center;
+    }
+
+    .form-group {
+     margin-top:25px
+     }
+
+</style>
+<body>
+
+<nav class="navbar navbar-default navbar-static-top">
+    <div class="container">
+        <a class="navbar-brand" href="/"><span class="glyphicon glyphicon-home" aria-hidden="true"></span></a>
+    </div>
+</nav>
+
+    <h3 id="title">注册帐号</h3>
+
+    <form id="form" action="/user/register" method="post">
+
+        <div class="form-group">
+            <label>用户名</label>
+            <input id="usr" class="form-control" type="text" placeholder="username" name="username" onblur="confirm_username(this.value)">
+        </div>
+
+            <h6 id="usrtips">*用户名长度在6到32位之间，且只能由字母、数字构成</h6>
+
+        <div class="form-group">
+            <label>密码</label>
+            <input id="pwd" class="form-control" type="password" placeholder="password" name="password" onblur="confirm_password(this.value)">
+            <h6 id="pwdtips">*密码长度须在8到128位之间</h6>
+        </div>
+
+        <div class="form-group">
+            <label>再次输入密码</label>
+            <input id="pwd_ag" class="form-control" type="password" placeholder="password again" name="password_again" onblur="pwd_again(this.value)">
+        </div>
+
+        <div class="form-group">
+            <p></p>
+            <label>注册码</label>
+            <input id="r_c" class="form-control" type="text" placeholder="register code" name="register_code">
+            <h6 id="register_code_tips">*本站采用邀请注册制度，若无邀请码请放弃。</h6>
+        </div>
+
+            <p></p>
+            <button id="btn" disabled="disabled" class="btn btn-default">注册</button>
+    </form>
+
+    {# 弹窗提示 #}
+    <strong id="tip"></strong>
+</body>
+
+<script type="text/javascript">
+
+var u_status = 0;
+var p_status = 0;
+var p_ag_status = 0;
+
+function confirm_username(username)
+    {
+    var xmlhttp;
+    var u_name = $('#usr');
+    xmlhttp=new XMLHttpRequest();
+
+    if (username == '')
+        {
+        u_name.parent().attr('class', 'form-group');
+        u_status = 0;
+        disable_button();
+        }
+    else
+        {
+        xmlhttp.onreadystatechange=function()
+            {
+            if (xmlhttp.readyState==4 && xmlhttp.status==200)
+                {
+                ShowSuccess(xmlhttp.responseText);
+                u_name.parent().attr('class', 'form-group has-success');
+                u_status = 1;
+                disable_button();
+                }
+            else if (xmlhttp.readyState==4 && xmlhttp.status==202)
+                {
+                ShowFailure(xmlhttp.responseText);
+                u_name.parent().attr('class', 'form-group has-error');
+                u_status = 0;
+                disable_button();
+                };
+            };
+            xmlhttp.open("POST", '/user/confirm_username', true);
+            xmlhttp.setRequestHeader("Content-type","application/x-www-form-urlencoded");
+            xmlhttp.send("username="+username);
+            }
+        }
+
+
+function confirm_password(password)
+    {
+    var pwd = $('#pwd');
+    xmlhttp=new XMLHttpRequest();
+
+    if (password == '')
+        {
+        pwd.parent().attr('class', 'form-group');
+        p_status = 0;
+        disable_button();
+        }
+    else
+        {
+        xmlhttp.onreadystatechange=function()
+            {
+            if (xmlhttp.readyState==4 && xmlhttp.status==200)
+                {
+                ShowSuccess(xmlhttp.responseText);
+                pwd.parent().attr('class', 'form-group has-success');
+                p_status = 1;
+                pwd_again($('#pwd_ag').val());
+                }
+            else if (xmlhttp.readyState==4 && xmlhttp.status==202)
+                {
+                ShowFailure(xmlhttp.responseText);
+                pwd.parent().attr('class', 'form-group has-error');
+                p_status =0;
+                disable_button();
+                };
+            }
+        xmlhttp.open("POST", '/user/confirm_password', true);
+        xmlhttp.setRequestHeader("Content-type","application/x-www-form-urlencoded");
+        xmlhttp.send("password="+password);
+        }
+    }
+
+
+function pwd_again(pwd_ag)
+    {
+    var pwd = $('#pwd');
+    var p_ag = $('#pwd_ag')
+
+    if (pwd_ag == '')
+        {
+            p_ag.parent().attr('class', 'form-group');
+            p_ag_status = 0;
+            disable_button();
+        }
+
+    else if( (p_status == 1) && (pwd_ag == pwd.val()) )
+        {
+            p_ag.parent().attr('class', 'form-group has-success');
+            p_ag_status = 1;
+            disable_button();
+        }
+    else if ( (p_status == 1) && (pwd_ag != pwd.val()) )
+        {
+            ShowFailure('两次输入的密码不一致，请重新输入');
+            p_ag.parent().attr('class', 'form-group has-error');
+            p_ag_status = 0;
+            disable_button();
+        }
+    else if (p_status != 1)
+        {
+            ShowFailure("请检查'密码'项是否填写正确");
+            p_ag.parent().attr('class', 'form-group has-error');
+            p_ag_status = 0;
+            disable_button();
+        }
+    }
+
+
+function disable_button()
+    {
+    var button = $('#btn')
+
+    if (u_status == 1 && p_status == 1 && p_ag_status ==1)
+        {
+            button.removeAttr('disabled');
+        }
+    else
+        {
+            button.attr('disabled', 'disabled');
+        }
+    }
+
+// tip是提示信息，type:'success'是成功信息，'danger'是失败信息,'info'是普通信息,'warning'是警告信息
+// http://www.cnblogs.com/hambert/p/4076027.html
+function ShowTip(tip, type)
+    {
+    var $tip = $('#tip');
+    $tip.stop(true).prop('class', 'alert alert-' + type).text(tip).css('margin-left', - $tip.outerWidth() / 2).fadeIn(500).delay(2000).fadeOut(500);
+    }
+
+function ShowMsg(msg)
+    {
+    ShowTip(msg, 'info');
+    }
+
+function ShowSuccess(msg)
+    {
+    ShowTip(msg, 'success');
+    }
+
+function ShowFailure(msg)
+    {
+    ShowTip(msg, 'danger');
+    }
+
+function ShowWarn(msg)
+    {
+    ShowTip(msg, 'warning');
+//    if ($focus) {
+//　　　　 $focus.focus();
+//    　　if (clear) $focus.val('');
+//　 　}
+    return false;
+    }
+
+$(document).ready(function(){
+    var msg = '{{ message }}';
+    if (msg != '')
+        {
+        ShowMsg( msg );
+        }
+    });
+
+
+</script>
+</html>
