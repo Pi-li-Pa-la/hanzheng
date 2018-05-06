@@ -49,19 +49,19 @@ def get_all_update():
         for sensor in gateway["sensors"]:
             ss = Sensor(sensor)
             ss.gateway = gw
-            ss.save()
+            # ss.save()
 
         # update datas
         for sensor in gateway["sensors"]:
             sensor_id = sensor["id"]
             url = "http://www.lewei50.com/api/v1/sensor/gethistorydata/{}".format(sensor_id)
             r = requests.get(url, headers=headers)
-            data_list = json.loads(r)["Data"]
+            data_list = json.loads(r.content)["Data"]
             sensor = Sensor.query.filter_by(sensor_id=sensor_id).first()
             for data_dict in data_list:
                 new_data = Datas(data_dict)
                 new_data.sensor = sensor
-                new_data.save()
+                # new_data.save()
             return "OK"
 
 
@@ -72,20 +72,4 @@ def get_all_gateway_json(headers):
     return json_str
 
 
-def update_datas():
-    json_str = get_all_gateway_json(headers)
-    gateway_list = json.loads(json_str)
-    for gateway in gateway_list:
-        for sensor in gateway["sensors"]:
-            sensor_id = sensor["id"]
-            url = "http://www.lewei50.com/api/v1/sensor/gethistorydata/{}".format(sensor_id)
-            r = requests.get(url, headers=headers)
-            json_str = r.content.decode("utf-8")
-            rsp = requests.post("http://0.0.0.0:3000/datas/update-datas/{}".format(sensor_id), json=json_str)
-            print(rsp)
 
-
-def update_gateway():
-    json_str = get_all_gateway_json(headers)
-    rsp = requests.post("http://0.0.0.0:3000/datas/update-equip/{}".format("poisonhz"), json=json_str)
-    print(rsp)
