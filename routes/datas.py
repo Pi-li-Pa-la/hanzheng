@@ -56,7 +56,7 @@ def get_all_update():
             sensor_id = sensor["id"]
             url = "http://www.lewei50.com/api/v1/sensor/gethistorydata/{}".format(sensor_id)
             r = requests.get(url, headers=headers)
-            data_list = json.loads(r.content)["Data"]
+            data_list = json.loads(r.content.decode("utf-8"))["Data"]
             sensor = Sensor.query.filter_by(sensor_id=sensor_id).first()
             for data_dict in data_list:
                 new_data = Datas(data_dict)
