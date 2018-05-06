@@ -38,7 +38,6 @@ def update_equip(username):
 
 @main.route("/get-all-update", methods=["GET"])
 def get_all_update():
-
     json_str = get_all_gateway_json(headers)
     gateway_list = json.loads(json_str)
     for gateway in gateway_list:
@@ -49,7 +48,7 @@ def get_all_update():
         for sensor in gateway["sensors"]:
             ss = Sensor(sensor)
             ss.gateway = gw
-            # ss.save()
+            ss.save()
 
         # update datas
         for sensor in gateway["sensors"]:
@@ -61,7 +60,7 @@ def get_all_update():
             for data_dict in data_list:
                 new_data = Datas(data_dict)
                 new_data.sensor = sensor
-                # new_data.save()
+                new_data.save()
     return "OK"
 
 
