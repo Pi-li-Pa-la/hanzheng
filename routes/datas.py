@@ -62,7 +62,7 @@ def get_all_update():
                 new_data = Datas(data_dict)
                 new_data.sensor = sensor
                 # new_data.save()
-            return "OK"
+    return "OK"
 
 
 def get_all_gateway_json(headers):
