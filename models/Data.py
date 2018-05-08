@@ -11,7 +11,8 @@ class Gateway(db.Model, ModelMixin):
     id = db.Column(db.Integer, primary_key=True)
     gateway_id = db.Column(db.Integer)
     name = db.Column(db.String(32))
-    username = db.Column(db.String(32))
+    lewei_user_id = db.Column(db.Integer(), db.ForeignKey("leweiusers.id"))
+    lewei_user = db.relationship("LeweiUsers", backref=db.backref('gateways'), lazy=True)
 
     def __init__(self, form):
         self.gateway_id = form.get("id", "")
@@ -55,3 +56,16 @@ class Datas(db.Model, ModelMixin):
             return float(time_stamp)
         else:
             pass
+
+class LeweiUsers(db.Model, ModelMixin):
+    __tablename__ = "leweiusers"
+    __table_args__ = {'mysql_collate': 'utf8_general_ci'}
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(32))
+    user_key = db.Column(db.String(64))
+
+    def __init__(self, form):
+        self.username = form.get("username")
+        self.user_key = form.get("user_key", "")
+
+
