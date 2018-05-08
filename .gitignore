@@ -111,6 +111,7 @@ migrations/
 .idea/
 db.sqlite
 
-# myweb
+# web_server
 config.py
+client.py
 /logs
