@@ -1,9 +1,8 @@
-import time
 from flask import Blueprint, render_template, redirect, url_for, request
 from models.Db import Db
 from utils import log, valid_int_type
 from functools import reduce
-from universal_func import csrf, csrf_func, valid_csrf, current_user, login_required
+from universal_func import csrf_func, valid_csrf, current_user, login_required
 
 main = Blueprint('admin', __name__)
 db = Db()
@@ -38,6 +37,7 @@ def make_update_sql(form, id, table_name):
     sql = "UPDATE {} SET {} WHERE id={};".format(table_name, ','.join(l), id)
     print(sql)
     return sql
+
 
 # 此函数获取数据库指定表的列信息，并将处理过的列信息返回
 def column_info_func(table_name):
@@ -97,9 +97,10 @@ def data_base():
 def table(table_name):
     column_name = db.all_columns(table_name)
     data = db.column_data(table_name)
-    username=current_user()
+    username = current_user()
     csrf_token = csrf_func(username)
-    return render_template('/admin/table.html', tableName=table_name, columnName=column_name, tableData=data, csrfToken=csrf_token)
+    return render_template('/admin/table.html', tableName=table_name, columnName=column_name, tableData=data,
+                           csrfToken=csrf_token)
 
 
 @main.route('/db/insert/<string:table_name>', methods=['GET', 'POST'])
@@ -119,11 +120,13 @@ def insert_data(table_name):
         form = request.form
         if not valid_csrf(form['csrf'], username):
             log('我曹，跨站请求伪造？', request.form)
-            return render_template('/admin/db_add.html', tableName=table_name, columns=col_info, csrfToken=csrf_func(username), msg='跨站请求伪造！！！')
+            return render_template('/admin/db_add.html', tableName=table_name, columns=col_info,
+                                   csrfToken=csrf_func(username), msg='跨站请求伪造！！！')
 
         valid_result, msg = valid_data_type(form, col_info)
         if not valid_result:
-            return render_template('/admin/db_add.html', tableName=table_name, columns=col_info, csrfToken=csrf_func(username), msg=msg)
+            return render_template('/admin/db_add.html', tableName=table_name, columns=col_info,
+                                   csrfToken=csrf_func(username), msg=msg)
 
         sql = make_insert_sql(form, table_name)
         db.diu_sql(sql)
@@ -173,6 +176,6 @@ def delete_data(table_name):
     csrf_token = args['csrfToken']
     if valid_csrf(csrf_token, username):
         id = args['id']
-        sql = "DELETE FROM {} WHERE id={}".format(table_name, id)
+        sql = "DELETE FROM {} WHERE id={};".format(table_name, id)
         db.diu_sql(sql)
     return redirect(url_for('.table', table_name=table_name))
