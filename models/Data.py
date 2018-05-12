@@ -63,9 +63,9 @@ class LeweiUsers(db.Model, ModelMixin):
     __tablename__ = "leweiusers"
     __table_args__ = {'mysql_collate': 'utf8_general_ci'}
     id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(32))
+    lw_username = db.Column(db.String(32))
     user_key = db.Column(db.String(64))
 
     def __init__(self, form):
-        self.username = form.get("username")
+        self.lw_username = form.get("username")
         self.user_key = form.get("user_key", "")

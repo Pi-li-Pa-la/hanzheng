@@ -42,6 +42,9 @@ def update_equip(user_id):
         if not Gateway.query.filter_by(gateway_id=gw.gateway_id).all():
             gw.lewei_user = lw_usr
             gw.save()
+        else:
+            gw = Gateway.query.filter_by(gateway_id=gw.gateway_id).one()
+
         for sensor in form["sensors"]:
             ss = Sensor(sensor)
             if not Sensor.query.filter_by(sensor_id=ss.sensor_id).all():
@@ -70,9 +73,10 @@ def save_data(begin_time, sensor, user_key):
                                            e_year=e_time.tm_year, e_month=e_time.tm_mon, e_day=e_time.tm_mday)
         content = requests.get(url, headers=headers).content
         data_list = json.loads(content)["Data"]
-        for form in data_list:
-            data = Datas(form)
-            data.sensor = sensor
-            data.save()
-        sensor.latest_time = end_time
-        sensor.save()
+        if data_list:
+            for form in data_list:
+                data = Datas(form)
+                data.sensor = sensor
+                data.save()
+            sensor.latest_time = end_time
+            sensor.save()
