@@ -114,5 +114,6 @@ db.sqlite
 # web_server
 config.py
 client.py
+auto_get_datas.py
 /logs
 note.txt
