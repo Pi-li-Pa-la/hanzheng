@@ -115,3 +115,4 @@ db.sqlite
 config.py
 client.py
 /logs
+note.txt

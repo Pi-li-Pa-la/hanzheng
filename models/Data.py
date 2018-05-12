@@ -17,7 +17,6 @@ class Gateway(db.Model, ModelMixin):
     def __init__(self, form):
         self.gateway_id = form.get("id", "")
         self.name = form.get("name", "")
-        self.username = None
 
 
 class Sensor(db.Model, ModelMixin):
@@ -28,10 +27,12 @@ class Sensor(db.Model, ModelMixin):
     sensor_id = db.Column(db.Integer)
     gateway_id = db.Column(db.Integer, db.ForeignKey("gateways.id"))
     gateway = db.relationship("Gateway", backref=db.backref('sensors', lazy=True))
+    latest_time = db.Column(db.Float(precision=53))
 
     def __init__(self, form):
         self.sensor_id = form.get("id", "")
         self.name = form.get("name", "")
+        self.latest_time = None
 
 
 class Datas(db.Model, ModelMixin):
@@ -57,6 +58,7 @@ class Datas(db.Model, ModelMixin):
         else:
             pass
 
+
 class LeweiUsers(db.Model, ModelMixin):
     __tablename__ = "leweiusers"
     __table_args__ = {'mysql_collate': 'utf8_general_ci'}
@@ -67,5 +69,3 @@ class LeweiUsers(db.Model, ModelMixin):
     def __init__(self, form):
         self.username = form.get("username")
         self.user_key = form.get("user_key", "")
-
-
