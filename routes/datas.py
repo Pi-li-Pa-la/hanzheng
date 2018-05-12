@@ -36,7 +36,7 @@ def update_equip(user_id):
     lw_usr = LeweiUsers.query.filter_by(id=user_id).one()
     url = lewei_url["all_equip"]
     headers = {"userkey": lw_usr.user_key}
-    gateway_list = json.loads(requests.get(url, headers=headers).content)
+    gateway_list = json.loads(requests.get(url, headers=headers).content.decode("utf-8"))
     for form in gateway_list:
         gw = Gateway(form)
         if not Gateway.query.filter_by(gateway_id=gw.gateway_id).all():
@@ -71,7 +71,7 @@ def save_data(begin_time, sensor, user_key):
         url = lewei_url["get_data"].format(sensor_id=sensor.sensor_id, s_year=middle_time.tm_year,
                                            s_month=middle_time.tm_mon, s_day=middle_time.tm_mday,
                                            e_year=e_time.tm_year, e_month=e_time.tm_mon, e_day=e_time.tm_mday)
-        content = requests.get(url, headers=headers).content
+        content = requests.get(url, headers=headers).content.decode("utf-8")
         data_list = json.loads(content)["Data"]
         if data_list:
             for form in data_list:
