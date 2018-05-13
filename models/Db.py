@@ -17,7 +17,6 @@ class Db(object):
             with self.session.cursor() as cursor:
                 cursor.execute(sql)
                 for c in cursor:
-                    print(c)
                     result.append(c)
         finally:
             self.session.close()
@@ -70,19 +69,21 @@ class Db(object):
 
     def column_data(self, table_name):
         result = []
-        all_col = self.all_columns(table_name)
-        select_sql = " ,".join(all_col)
         sql = '''
             SELECT
-                {select_sql}
+                *
             FROM
                 {table_name}
             ORDER BY
                 id;
-            '''.format(select_sql=select_sql, table_name=table_name)
+            '''.format(table_name=table_name)
         data = self.select_sql(sql)
+        all_columns = self.all_columns(table_name)
         for d in data:
-            result.append(d)
+            r_dict = {}
+            for col_name in all_columns:
+                r_dict[col_name] = d[col_name]
+            result.append(r_dict)
         return result
 
     def column_info(self, table_name):
