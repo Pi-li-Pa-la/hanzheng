@@ -68,9 +68,10 @@ def save_data(begin_time, sensor, user_key):
         if end_time > now:
             end_time = now
         e_time = time.localtime(end_time)
-        url = lewei_url["get_data"].format(sensor_id=sensor.sensor_id, s_year=middle_time.tm_year,
-                                           s_month=middle_time.tm_mon, s_day=middle_time.tm_mday,
-                                           e_year=e_time.tm_year, e_month=e_time.tm_mon, e_day=e_time.tm_mday)
+        with middle_time as mt, e_time as et:
+            url = lewei_url["get_data"].format(sensor_id=sensor.sensor_id, s_year=mt.tm_year, s_month=mt.tm_mon,
+                s_day=mt.tm_mday, s_hour=mt.tm_hour, s_min=mt.tm_min, s_sec=mt.tm_sec, e_year=et.tm_year,
+                e_month=et.tm_mon, e_day=et.tm_mday, e_hour=et.tm_hour, e_min=et.tm_min, e_sec=et.tm_sec)
         content = requests.get(url, headers=headers).content.decode("utf-8")
         data_list = json.loads(content)["Data"]
         if data_list:
