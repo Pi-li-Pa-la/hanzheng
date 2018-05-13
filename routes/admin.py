@@ -98,7 +98,6 @@ def table(table_name):
     column_name = db.all_columns(table_name)
     print("column name:", column_name)
     data = db.column_data(table_name)
-    print("data", data)
     username = current_user()
     csrf_token = csrf_func(username)
     return render_template('/admin/table.html', tableName=table_name, columnName=column_name, tableData=data,
