@@ -84,6 +84,7 @@ class Db(object):
             for col_name in all_columns:
                 r_dict[col_name] = d[col_name]
             result.append(r_dict)
+            print(r_dict)
         return result
 
     def column_info(self, table_name):
