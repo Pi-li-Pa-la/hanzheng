@@ -69,14 +69,16 @@ class Db(object):
 
     def column_data(self, table_name):
         result = []
+        all_col = self.all_columns(table_name)
+        select_sql = " ,".join(all_col)
         sql = '''
             SELECT
-                *
+                {select_sql}
             FROM
-                {}
+                {table_name}
             ORDER BY
                 id;
-            '''.format(table_name)
+            '''.format(select_sql=select_sql, table_name=table_name)
         data = self.select_sql(sql)
         for d in data:
             result.append(d)
