@@ -1,4 +1,7 @@
+import collections
+
 import pymysql.cursors
+
 from config import db_config
 
 
@@ -80,7 +83,7 @@ class Db(object):
         data = self.select_sql(sql)
         all_columns = self.all_columns(table_name)
         for d in data:
-            r_dict = {}
+            r_dict = collections.OrderedDict()
             for col_name in all_columns:
                 r_dict[col_name] = d[col_name]
             result.append(r_dict)
