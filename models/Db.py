@@ -17,6 +17,7 @@ class Db(object):
             with self.session.cursor() as cursor:
                 cursor.execute(sql)
                 for c in cursor:
+                    print(c)
                     result.append(c)
         finally:
             self.session.close()
@@ -71,7 +72,6 @@ class Db(object):
         result = []
         all_col = self.all_columns(table_name)
         select_sql = " ,".join(all_col)
-        print("select sql:", select_sql)
         sql = '''
             SELECT
                 {select_sql}
@@ -80,9 +80,7 @@ class Db(object):
             ORDER BY
                 id;
             '''.format(select_sql=select_sql, table_name=table_name)
-        print("sql", sql)
         data = self.select_sql(sql)
-        print("sql data", data)
         for d in data:
             result.append(d)
         return result
