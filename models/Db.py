@@ -82,6 +82,7 @@ class Db(object):
             '''.format(select_sql=select_sql, table_name=table_name)
         print("sql", sql)
         data = self.select_sql(sql)
+        print("sql data", data)
         for d in data:
             result.append(d)
         return result
