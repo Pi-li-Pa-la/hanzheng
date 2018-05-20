@@ -76,12 +76,14 @@ def datas():
     else:
         start_time = request.form.get("start_time", "")
         end_time = request.form.get("end_time", "")
-        sensor_id = request.form.get("sensor_id", "")
+        sensor_id = int(request.form.get("sensor_id", ""))
+
+        sensor = Sensor.query.filter_by(id=sensor_id).one()
 
         start_time = time.mktime(time.strptime(start_time, "%Y-%m-%d %H:%M:%S"))
         end_time = time.mktime(time.strptime(end_time, "%Y-%m-%d %H:%M:%S"))
         data_list = Datas.query.filter(Datas.time > start_time, Datas.time < end_time,
-                                       Datas.sensor_id == int(sensor_id)).all()
+                                       Datas.sensor_id == sensor_id).all()
         date_times = []
         datas = []
         for data in data_list:
@@ -90,6 +92,7 @@ def datas():
         d = {}
         d["date_times"] = date_times
         d["datas"] = datas
+        d["sensor_name"] = sensor.name
     return json.dumps(d)
 
 

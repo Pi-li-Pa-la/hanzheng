@@ -154,6 +154,8 @@ function get_data()
             var dict=JSON.parse(xmlhttp.responseText);
             var date_times=dict.date_times;
             var datas=dict.datas;
+            var sensor_name=dict.sensor_name;
+
             myChart.setOption({
                 xAxis: {
                     data: date_times,
@@ -161,6 +163,9 @@ function get_data()
                 series: [{
                     data: datas,
                 }],
+                title: {
+                    text: sensor_name,
+                },
             });
         };
     };
