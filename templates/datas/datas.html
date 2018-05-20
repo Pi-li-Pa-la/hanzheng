@@ -19,7 +19,7 @@
 }
 
 #main {
-    position: absolute;
+    position: relative;
     z-index: 1;
     top: 50px;
     margin-left: auto;
@@ -96,10 +96,13 @@ var option = {
     toolbox: {
         feature: {
             dataZoom: {
-                yAxisIndex: 'false'
+                yAxisIndex: 'none'
             },
             restore: {},
-            saveAsImage: {}
+            saveAsImage: {},
+        },
+        iconStyle: {
+            borderColor: "#fff",
         },
     },
     tooltip: {
