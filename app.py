@@ -19,9 +19,8 @@ manager = Manager(app)
 def index():
     u = current_user()
     if u:
-        username = u.username
-        return render_template('index.html', register='none', welcome='block', username=username)
-    return render_template('index.html', register='block', welcome='none', username='')
+        return render_template('index.html', register='none', welcome='block', user=u)
+    return render_template('index.html', register='block', welcome='none', user={"id": None})
 
 
 def configured_app():

@@ -19,10 +19,12 @@
     <div id="register" style="display:{{ register }}">
         <a href="/user">登录</a>
         <a href="/user/register">注册</a>
+
     </div>
 
     <div id="user" style="display:{{ welcome }}">
-        <h2>欢迎{{ username | default('可能是出bug了') }}</h2>
+        <h2>欢迎{{ user.username | default('可能是出bug了') }}</h2>
+        <a href="/user/{{ user.id }}">个人主页</a>
     </div>
 
 

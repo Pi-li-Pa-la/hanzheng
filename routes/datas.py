@@ -6,6 +6,7 @@ from flask import Blueprint, abort, render_template, request
 from models.Data import Gateway, Sensor, Datas, LeweiUsers
 
 from config import lewei_url
+from universal_func import login_required
 
 
 main = Blueprint('datas', __name__)
@@ -54,6 +55,7 @@ def update_equip(user_id):
 
 
 @main.route("/index", methods=["GET", "POST"])
+@login_required
 def datas():
     if request.method.upper() == "GET":
         today = time.strftime("%Y-%m-%d", time.localtime())
