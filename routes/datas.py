@@ -2,7 +2,7 @@ import json
 import requests
 import time
 
-from flask import Blueprint, abort
+from flask import Blueprint, abort, render_template, request
 from models.Data import Gateway, Sensor, Datas, LeweiUsers
 
 from config import lewei_url
@@ -51,6 +51,44 @@ def update_equip(user_id):
                 ss.gateway = gw
                 ss.save()
     return "OK"
+
+
+@main.route("/index", methods=["GET", "POST"])
+def datas():
+    if request.method.upper() == "GET":
+        today = time.strftime("%Y-%m-%d", time.localtime())
+        str_time = time.strptime(today, "%Y-%m-%d")
+        start_time = time.mktime(str_time)
+        end_time = time.time()
+        sensors = Sensor.query.all()
+        data_list = Datas.query.filter(Datas.time > start_time, Datas.time < end_time,
+                                       Datas.sensor_id == sensors[0].id).all()
+        date_times = []
+        datas = []
+        for data in data_list:
+            date_times.append(data.print_time)
+            datas.append(data.value)
+        return render_template("/datas/datas.html", x_datas=json.dumps(date_times), y_datas=json.dumps(datas),
+            sensors=sensors)
+
+    else:
+        start_time = request.form.get("start_time", "")
+        end_time = request.form.get("end_time", "")
+        sensor_id = request.form.get("sensor_id", "")
+
+        start_time = time.mktime(time.strptime(start_time, "%Y-%m-%d %H:%M:%S"))
+        end_time = time.mktime(time.strptime(end_time, "%Y-%m-%d %H:%M:%S"))
+        data_list = Datas.query.filter(Datas.time > start_time, Datas.time < end_time,
+                                       Datas.sensor_id == int(sensor_id)).all()
+        date_times = []
+        datas = []
+        for data in data_list:
+            date_times.append(data.print_time)
+            datas.append(data.value)
+        d = {}
+        d["date_times"] = date_times
+        d["datas"] = datas
+    return json.dumps(d)
 
 
 @main.route("/test", methods=["GET"])

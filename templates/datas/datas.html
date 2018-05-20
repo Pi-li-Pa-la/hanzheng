@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Sensor Data</title>
+    <script src="/static/laydate/laydate.js"></script>
+    <link rel="stylesheet" href="/static/css/bootstrap.min.css">
+    <script src="/static/js/jquery.min.js"></script>
+    <script src="/static/js/bootstrap.min.js"></script>
+    <script src="/static/echart/echarts.js"></script>
+<style>
+#form {
+    position: absolute;
+    z-index: 2;
+    width: 90%;
+    left: 50%;
+    top: 5%;
+    transform: translate(-50%, -50%);
+}
+
+#main {
+    position: absolute;
+    z-index: 1;
+    top: 50px;
+    margin-left: auto;
+    margin-right: auto;
+    padding: 40px;
+
+#icon {
+    display: inline-block;
+}
+
+#calendar {
+    width: 100px;
+    height: 100px;
+    padding: 40px;
+}
+
+</style>
+<body>
+    <form id="form" class="form-inline" action="/datas/index" method="post">
+    <!--<form id="myForm" class="form-inline">-->
+
+        <div class="form-group">
+            <label>开始时间</label>
+            <input id="start_time" class="form-control" type="text" name="start_time">
+        </div>
+        <div class="form-group">
+            <label>结束时间</label>
+            <input id="end_time" class="form-control" type="text" name="end_time">
+        </div>
+        <label>Sensor</label>
+        <div class="dropdown form-group">
+            <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu2" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            {{ sensors[0].name }}
+                <span class="caret"></span>
+            </button>
+            <ul class="dropdown-menu" aria-labelledby="dropdownMenu2">
+                {% for sensor in sensors %}
+                <li onclick="dropdown('{{ sensor.name }}', '{{ sensor.id }}')"><a>{{ sensor.name }}</a></li>
+                {% endfor %}
+            </ul>
+        </div>
+        <input id="dropdown-select" name="sensor_id" value="{{ sensors[0].id }}" style="display: none">
+        <button id="btn" type="button" class="btn btn-default" onclick="get_data()">确定</button>
+    </form>
+
+    <div id="main" style="width: 1200px; height:600px;"></div>
+
+</body>
+
+{# EChart 图表 #}
+<script  type="text/javascript">
+var myChart = echarts.init(document.getElementById('main'));
+var x_datas = {{ x_datas|safe }};
+var y_datas = {{ y_datas|safe }};
+var option = {
+    backgroundColor: '#eee',
+    title: {
+        text: "{{sensors[0].name}}",
+        left: "center",
+    },
+    xAxis: {
+        type: 'category',
+        data: x_datas,
+        axisPointer: {
+            show: true,
+            label: {
+            show: true,
+            },
+        },
+    },
+    yAxis: {
+        type: 'value',
+    },
+    toolbox: {
+        feature: {
+            dataZoom: {
+                yAxisIndex: 'false'
+            },
+            restore: {},
+            saveAsImage: {}
+        },
+    },
+    tooltip: {
+    },
+    dataZoom: [
+        {
+            type: 'slider',
+            realtime: true,
+            start: 0,
+            end: 100
+        }
+    ],
+    series: [{
+        data: y_datas,
+        type: 'line',
+        smooth: true
+    }]
+};
+myChart.setOption(option);
+
+{# 日期时间选择插件 #}
+laydate.render({
+  elem: '#start_time',
+  type: "datetime",
+});
+laydate.render({
+  elem: '#end_time',
+  type: "datetime",
+});
+
+{# 下拉菜单控制 #}
+function dropdown(sensor_name, sensor_id){
+    var dropdown_button = $(".dropdown-toggle")
+    var dropdown_input = $("#dropdown-select")
+    var str = " <span class='caret'></span>"
+
+    dropdown_button.html(sensor_name + str)
+    dropdown_input.val(sensor_id)
+}
+
+{# 更新数据 #}
+function get_data()
+    {
+    var xmlhttp;
+    var start_time=$("#start_time").val();
+    var end_time=$("#end_time").val();
+    var sensor_id=$("#dropdown-select").val();
+
+    xmlhttp=new XMLHttpRequest();
+    xmlhttp.onreadystatechange=function(){
+        if (xmlhttp.readyState==4 && xmlhttp.status==200){
+            var dict=JSON.parse(xmlhttp.responseText);
+            var date_times=dict.date_times;
+            var datas=dict.datas;
+            myChart.setOption({
+                xAxis: {
+                    data: date_times,
+                },
+                series: [{
+                    data: datas,
+                }],
+            });
+        };
+    };
+    xmlhttp.open("POST", '/datas/index', true);
+    xmlhttp.setRequestHeader("Content-type","application/x-www-form-urlencoded");
+    xmlhttp.send("start_time="+start_time+"&end_time="+end_time+"&sensor_id="+sensor_id);
+    }
+
+</script>
+</html>
