@@ -117,3 +117,4 @@ client.py
 auto_get_datas.py
 /logs
 note.txt
+auto_get_data_error_log.txt
