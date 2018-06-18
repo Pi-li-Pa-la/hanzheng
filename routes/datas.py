@@ -1,7 +1,10 @@
+import csv
 import json
+import os
 import requests
 import time
 
+import flask
 from flask import Blueprint, abort, render_template, request
 from models.Data import Gateway, Sensor, Datas, LeweiUsers
 
@@ -74,16 +77,9 @@ def datas():
             sensors=sensors)
 
     else:
-        start_time = request.form.get("start_time", "")
-        end_time = request.form.get("end_time", "")
-        sensor_id = int(request.form.get("sensor_id", ""))
-
+        sensor_id = request.form.get("sensor_id", "")
         sensor = Sensor.query.filter_by(id=sensor_id).one()
-
-        start_time = time.mktime(time.strptime(start_time, "%Y-%m-%d %H:%M:%S"))
-        end_time = time.mktime(time.strptime(end_time, "%Y-%m-%d %H:%M:%S"))
-        data_list = Datas.query.filter(Datas.time > start_time, Datas.time < end_time,
-                                       Datas.sensor_id == sensor_id).all()
+        data_list = get_data(request.form)
         date_times = []
         datas = []
         for data in data_list:
@@ -93,7 +89,24 @@ def datas():
         d["date_times"] = date_times
         d["datas"] = datas
         d["sensor_name"] = sensor.name
+        print(d)
     return json.dumps(d)
+
+
+@main.route("/download/<int:sensor_id>", methods=["GET", "POST"])
+@login_required
+def download_data(sensor_id):
+    data_list = get_data(request.args)
+    file_name = "{}.csv".format(sensor_id)
+
+    if not os.path.isdir("download"):
+        os.mkdir("download")
+    with open("download/{}".format(file_name), "w") as f:
+        writer = csv.writer(f)
+        writer.writerow(["time", "data"])
+        for data in data_list:
+            writer.writerow([data.print_time, data.value])
+    return flask.send_from_directory("download", file_name)
 
 
 @main.route("/test", methods=["GET"])
@@ -125,3 +138,19 @@ def save_data(begin_time, sensor, user_key):
                 data.save()
             sensor.latest_time = end_time
             sensor.save()
+
+
+def get_data(form):
+    start_time = form.get("start_time", "")
+    end_time = form.get("end_time", "")
+    sensor_id = form.get("sensor_id", "")
+    sensor_id = int(sensor_id)
+
+    if start_time and end_time:
+        start_time = time.mktime(time.strptime(start_time, "%Y-%m-%d %H:%M:%S"))
+        end_time = time.mktime(time.strptime(end_time, "%Y-%m-%d %H:%M:%S"))
+        data_list = Datas.query.filter(Datas.time > start_time, Datas.time < end_time,
+                                   Datas.sensor_id == sensor_id).all()
+    else:
+        return abort(404)
+    return data_list
