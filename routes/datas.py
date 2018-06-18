@@ -89,7 +89,6 @@ def datas():
         d["date_times"] = date_times
         d["datas"] = datas
         d["sensor_name"] = sensor.name
-        print(d)
     return json.dumps(d)
 
 
