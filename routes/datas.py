@@ -105,7 +105,7 @@ def download_data(sensor_id):
         writer.writerow(["time", "data"])
         for data in data_list:
             writer.writerow([data.print_time, data.value])
-    return flask.send_from_directory("download", file_name)
+    return flask.send_from_directory("download", file_name, as_attachment=True)
 
 
 @main.route("/test", methods=["GET"])
